@@ -74,7 +74,7 @@ Point out: two send jobs for the same campaign, nine seconds apart, both
 delivered, and a gateway timeout in between. The agent finds it; you judge it;
 the fix you decide on is a guard so a double click cannot send twice.
 
-## Homework
+## Workshop
 
 Clone this repo and run Moment 1 end to end yourself: theory, proof, fix,
 and a test that covers old sites.
