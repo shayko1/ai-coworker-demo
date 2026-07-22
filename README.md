@@ -50,12 +50,12 @@ next to `siteType`, which already has `TEMPLATE`. Ask the agent:
 ```
 Walk me through the open PR: what changed, and why.
 Which parts are risky? What do the tests not cover?
-Check it against our review skill.
+Check it against the rules in .claude/skills/repo-review-rules/SKILL.md.
 Questions only. I make the call on each one.
 ```
 
 Point out: the semantic-overlap rule it applies comes from
-`.claude/skills/review/SKILL.md`. Open the file. A skill is a file. You can
+`.claude/skills/repo-review-rules/SKILL.md`. Open the file. A skill is a file. You can
 edit it, live, during the session.
 
 ## Moment 3, 18:05: the investigation

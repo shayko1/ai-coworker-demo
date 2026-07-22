@@ -9,4 +9,4 @@ A tiny site-metadata service used in the "AI as a Coworker" Kickstart session.
 - Try a single site: `node src/cli.js <msid>`.
 - Metadata responses must always include `locale` and `timezone`.
 - Site fixtures live in `data/sites.json`. Some sites are old and predate the `settings` object.
-- Review rules live in `.claude/skills/review/SKILL.md`. Read them before reviewing any diff.
+- Review rules live in `.claude/skills/repo-review-rules/SKILL.md`. Read that file before reviewing any diff here, even if you already loaded another review skill.

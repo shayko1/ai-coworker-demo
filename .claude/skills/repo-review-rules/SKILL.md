@@ -1,9 +1,9 @@
 ---
-name: review
-description: Review rules for this repo. Read before reviewing any diff.
+name: repo-review-rules
+description: This repo's review rules. Read this file before reviewing any diff in this repo, even if another review skill is loaded.
 ---
 
-# Review skill
+# Repo review rules
 
 Team knowledge, written down. The agent reads this before every review.
 When it misses something, we add the lesson here. Plain words, one example each.
