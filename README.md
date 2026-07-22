@@ -4,7 +4,7 @@ The live-demo repo for the Kickstart session. Three moments, each under three
 minutes, each using a prompt straight from the deck. Plain Node, nothing to
 install.
 
-Deck: https://deckdrop.live/shayk/ai-as-a-coworker
+Deck: https://deckdrop.live/shayk/ai-as-a-coworker (source in `deck/index.html`)
 
 ## Moment 1, 09:15: debug with a theory
 

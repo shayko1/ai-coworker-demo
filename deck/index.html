@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI as a Coworker</title>
+<meta name="description" content="How to work with AI as a teammate at Wix: debugging prompts, code review, trust boundaries, and your first production investigation.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://deckdrop.live/shayk/ai-as-a-coworker">
+<meta property="og:title" content="AI as a Coworker">
+<meta property="og:description" content="How to work with AI as a teammate at Wix: debugging prompts, code review, trust boundaries, and your first production investigation.">
+<meta property="og:image" content="https://deckdrop.live/shayk/ai-as-a-coworker/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI as a Coworker">
+<meta name="twitter:description" content="How to work with AI as a teammate at Wix: debugging prompts, code review, trust boundaries, and your first production investigation.">
+<meta name="twitter:image" content="https://deckdrop.live/shayk/ai-as-a-coworker/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0c08;
+    --bg-warm: #12140c;
+    --bg-card: #14160e;
+    --bg-ink: #101207;
+    --dark: #070804;
+    --text: #f2f0e2;
+    --text-secondary: #c6c4b0;
+    --text-muted: #757662;
+    --accent: #cff54a;
+    --accent-bg: rgba(207, 245, 74, 0.07);
+    --coral: #ff6d4d;
+    --secondary: #ff6d4d;
+    --amber: #f5c84a;
+    --green: #8fe08a;
+    --border: #272a1c;
+    --border-soft: #1c1e13;
+    --font-title: 'Fraunces', Georgia, serif;
+    --font-display: 'Bricolage Grotesque', sans-serif;
+    --font-body: 'Atkinson Hyperlegible', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  /* day color-coding: each day re-tints the whole slide */
+  .day-tue { --accent: #59c8ff; --accent-bg: rgba(89, 200, 255, 0.08); }
+  .day-wed { --accent: #b79aff; --accent-bg: rgba(183, 154, 255, 0.08); }
+  .day-thu { --accent: #ff8a5c; --accent-bg: rgba(255, 138, 92, 0.09); }
+  .day-fri { --accent: #ffc94d; --accent-bg: rgba(255, 201, 77, 0.09); }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* atmosphere: dot grid + glows + grain */
+  body {
+    counter-reset: slidenum;
+    background-image:
+      radial-gradient(ellipse 60% 45% at 88% -8%, rgba(207, 245, 74, 0.09), transparent 60%),
+      radial-gradient(ellipse 50% 40% at -6% 108%, rgba(255, 109, 77, 0.06), transparent 55%),
+      radial-gradient(rgba(242, 240, 226, 0.045) 1px, transparent 1.4px);
+    background-size: 100% 100%, 100% 100%, 30px 30px;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 400;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .deck { width: 100%; height: 100%; position: relative; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 110px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+    counter-increment: slidenum;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ghost slide index, bottom-left */
+  .slide::before {
+    content: counter(slidenum, decimal-leading-zero);
+    position: absolute;
+    bottom: 28px;
+    left: 48px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: var(--text-muted);
+    opacity: 0.75;
+  }
+  .title-slide::before, .closing-slide::before { content: none; }
+
+  /* staggered reveal */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .slide.active > * { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .slide.active > *:nth-child(1) { animation-delay: 0.05s; }
+  .slide.active > *:nth-child(2) { animation-delay: 0.12s; }
+  .slide.active > *:nth-child(3) { animation-delay: 0.19s; }
+  .slide.active > *:nth-child(4) { animation-delay: 0.26s; }
+  .slide.active > *:nth-child(5) { animation-delay: 0.33s; }
+  .slide.active > *:nth-child(6) { animation-delay: 0.40s; }
+  .slide.active > *:nth-child(7) { animation-delay: 0.47s; }
+
+  h1 {
+    font-family: var(--font-title);
+    font-weight: 600;
+    font-size: 76px;
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+  }
+  h2 {
+    font-family: var(--font-title);
+    font-weight: 600;
+    font-size: 64px;
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    margin-bottom: 22px;
+    max-width: 20ch;
+  }
+  .em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  h3 {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+    margin-bottom: 18px;
+  }
+  h3::before { content: '~/'; color: var(--text-muted); margin-right: 2px; }
+  p { font-size: 27px; line-height: 1.55; color: var(--text-secondary); max-width: 56ch; }
+  ul { list-style: none; margin: 8px 0; }
+  li {
+    font-size: 27px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    padding-left: 40px;
+    position: relative;
+    margin-bottom: 16px;
+    max-width: 60ch;
+  }
+  li::before {
+    content: '▸';
+    position: absolute;
+    left: 2px;
+    top: 0;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 24px;
+  }
+  strong { color: var(--text); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-warm);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  .tagline { font-size: 28px; color: var(--text-muted); margin-top: 16px; }
+  .subtitle { font-size: 22px; color: var(--text-secondary); margin-top: 24px; }
+
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 16px 24px;
+    margin: 20px 0;
+    background: var(--accent-bg);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--text);
+    max-width: 68ch;
+  }
+
+  .divider {
+    width: 64px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    border: none;
+    margin: 0 0 30px;
+  }
+
+  /* terminal-chrome code blocks */
+  pre {
+    font-family: var(--font-mono);
+    font-size: 21px;
+    line-height: 1.7;
+    padding: 54px 30px 26px;
+    background: var(--bg-ink);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 14px 0;
+    color: var(--text);
+    white-space: pre-wrap;
+    position: relative;
+    box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+    max-width: 980px;
+  }
+  pre::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 36px;
+    background: rgba(242, 240, 226, 0.03);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  pre::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: 18px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 16px 0 0 var(--amber), 32px 0 0 var(--accent);
+    opacity: 0.85;
+  }
+  pre .cmt { color: var(--text-muted); }
+  pre .acc { color: var(--accent); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 20px;
+    border-top: 2px solid var(--accent);
+    max-width: 1040px;
+  }
+  th {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 14px 18px;
+    background: var(--bg-warm);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 14px 18px; border-bottom: 1px solid var(--border-soft); vertical-align: top; color: var(--text-secondary); }
+  td:first-child { color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+
+  /* review comment: GitHub-dark vibe */
+  .review-comment {
+    background: var(--bg-ink);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+    max-width: 1000px;
+    box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+  }
+  .review-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-soft);
+    background: rgba(242, 240, 226, 0.03);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .bot-avatar {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--dark);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .review-comment-body { padding: 24px 28px; font-size: 25px; line-height: 1.6; color: var(--text); }
+  .review-comment-body code { font-size: 0.8em; }
+
+  .card-row { display: flex; gap: 22px; margin: 18px 0; }
+  .card {
+    flex: 1;
+    background: linear-gradient(180deg, rgba(242, 240, 226, 0.03), rgba(242, 240, 226, 0.005));
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 26px 28px;
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px;
+    width: 34px; height: 3px;
+    background: var(--accent);
+  }
+  .card.card-do::before { background: var(--green); }
+  .card.card-dont::before { background: var(--coral); }
+  .card h3 { margin-bottom: 14px; }
+  .card h3::before { content: '##'; }
+  .card p, .card li { font-size: 22px; line-height: 1.5; }
+  .card p { margin-bottom: 8px; }
+  .card li { margin-bottom: 10px; padding-left: 24px; }
+  .card li::before { font-size: 16px; top: 1px; }
+
+  .stat-row { display: flex; gap: 22px; margin: 24px 0; }
+  .stat {
+    flex: 1;
+    text-align: center;
+    padding: 28px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .stat .number { font-family: var(--font-title); font-weight: 600; font-size: 52px; color: var(--accent); line-height: 1; }
+  .stat .label { font-size: 16px; color: var(--text-secondary); margin-top: 10px; }
+
+  /* phases: numbered rail */
+  .phases { display: flex; flex-direction: column; margin: 10px 0; max-width: 1000px; }
+  .phase {
+    display: flex;
+    gap: 26px;
+    align-items: flex-start;
+    padding: 22px 4px 22px 0;
+    border-bottom: 1px solid var(--border-soft);
+    position: relative;
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase-marker {
+    flex-shrink: 0;
+    width: 54px; height: 54px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--accent);
+    background: var(--accent-bg);
+  }
+  .phase-content h3 {
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 700;
+    font-size: 30px;
+    text-transform: none;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .phase-content h3::before { content: none; }
+  .phase-content p { font-size: 22px; margin: 0; line-height: 1.5; color: var(--text-secondary); }
+
+  /* week map (intro diagram) */
+  .week-map { display: flex; margin: 44px auto 0; width: 100%; max-width: 1040px; position: relative; }
+  .week-map::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 9%; right: 9%;
+    height: 2px;
+    background: linear-gradient(90deg, #cff54a, #59c8ff, #b79aff, #ff8a5c, #ffc94d);
+    opacity: 0.55;
+  }
+  .wm-day { flex: 1; text-align: center; position: relative; padding-top: 30px; }
+  .wm-day::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 18px var(--c);
+  }
+  .wm-name {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--c);
+    margin-bottom: 6px;
+  }
+  .wm-what { font-family: var(--font-display); font-weight: 600; font-size: 22px; color: var(--text); }
+
+  /* horizontal flow diagram */
+  .flow { display: flex; gap: 26px; align-items: stretch; margin: 30px 0 14px; max-width: 1120px; }
+  .flow-step {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--accent);
+    background: linear-gradient(180deg, rgba(242, 240, 226, 0.04), transparent);
+    border-radius: 6px;
+    padding: 22px 20px;
+    position: relative;
+  }
+  .flow-step .fs-num { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 12px; }
+  .flow-step h4 { font-family: var(--font-display); font-weight: 700; font-size: 28px; color: var(--text); margin-bottom: 10px; }
+  .flow-step p { font-size: 20px; line-height: 1.45; }
+  .flow-step:not(:last-child)::after {
+    content: '\2192';
+    position: absolute;
+    right: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    z-index: 2;
+  }
+
+  /* event timeline diagram */
+  .timeline { display: flex; margin: 36px 0 18px; position: relative; max-width: 1060px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 7px; left: 1%; right: 6%;
+    height: 2px;
+    background: var(--border);
+  }
+  .tl-event { flex: 1; position: relative; padding: 26px 16px 0 0; }
+  .tl-event::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent);
+  }
+  .tl-event.bad::before { background: var(--coral); box-shadow: 0 0 14px var(--coral); }
+  .tl-time { font-family: var(--font-mono); font-size: 17px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+  .tl-event.bad .tl-time { color: var(--coral); }
+  .tl-what { font-family: var(--font-display); font-weight: 600; font-size: 23px; color: var(--text); margin-bottom: 4px; }
+  .tl-sub { font-size: 18px; color: var(--text-secondary); max-width: 24ch; }
+
+  /* title slide */
+  .title-slide { justify-content: center; align-items: flex-start; padding-left: 12vw; }
+  .title-slide .kicker {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+  .title-slide .kicker .acc { color: var(--accent); }
+  .title-slide h1 { font-size: 128px; max-width: 11ch; }
+  .cursor {
+    display: inline-block;
+    width: 0.55ch;
+    height: 0.78em;
+    background: var(--accent);
+    margin-left: 10px;
+    vertical-align: baseline;
+    animation: blink 1.1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .title-slide .tagline {
+    font-family: var(--font-title);
+    font-style: italic;
+    font-size: 30px;
+    color: var(--text-secondary);
+    margin-top: 26px;
+  }
+  .title-slide .subtitle {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-top: 40px;
+  }
+
+  /* closing slide */
+  .closing-slide {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: radial-gradient(ellipse 70% 60% at 50% 115%, rgba(207, 245, 74, 0.12), transparent 60%), var(--dark);
+  }
+  .closing-slide h1 { color: var(--text); font-size: 96px; }
+  .closing-slide .tagline { color: var(--text-secondary); font-size: 26px; margin-top: 24px; }
+  .closing-slide .footer-note {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-top: 40px;
+  }
+
+  .centered-slide { align-items: center; text-align: center; }
+  .centered-slide h2 { max-width: 24ch; }
+  .centered-heading { font-size: 60px; max-width: 950px; }
+  .centered-sub { font-size: 30px; color: var(--text-secondary); max-width: 720px; }
+  .centered-slide .divider { margin: 8px auto 28px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+
+  /* navigation */
+  .control-bar {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(11, 12, 8, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    z-index: 100;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+  .control-bar.hidden { opacity: 0; pointer-events: none; }
+  .control-bar button {
+    width: 40px; height: 40px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-family: var(--font-mono);
+  }
+  .control-bar button:hover { border-color: var(--accent); color: var(--accent); }
+  .control-bar-center { display: flex; align-items: center; gap: 14px; }
+  .slide-counter, .elapsed-timer { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.1em; color: var(--text-muted); }
+
+  .progress {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: var(--accent);
+    box-shadow: 0 0 12px rgba(207, 245, 74, 0.6);
+    transition: width 0.35s ease;
+    z-index: 100;
+  }
+
+  .menu-btn {
+    position: fixed;
+    top: 22px;
+    right: 38px;
+    width: 42px; height: 42px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: rgba(11, 12, 8, 0.8);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    z-index: 200;
+    transition: all 0.2s;
+  }
+  .menu-btn:hover { border-color: var(--accent); }
+  .menu-btn span { display: block; width: 18px; height: 2px; background: var(--text); transition: background 0.2s; }
+  .menu-btn:hover span { background: var(--accent); }
+
+  .menu-overlay {
+    position: fixed; inset: 0;
+    background: rgba(7, 8, 4, 0.7);
+    z-index: 150;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .menu-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .menu-panel {
+    position: fixed;
+    top: 0; right: -360px;
+    width: 340px; height: 100%;
+    background: var(--bg-warm);
+    border-left: 1px solid var(--border);
+    z-index: 160;
+    padding: 60px 24px 24px;
+    overflow-y: auto;
+    transition: right 0.35s ease;
+  }
+  .menu-panel.open { right: 0; }
+  .menu-panel h3 { font-size: 14px; margin-bottom: 18px; }
+  .menu-panel .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--text);
+  }
+  .menu-panel .menu-item:hover { background: var(--accent-bg); }
+  .menu-panel .menu-item.active { background: var(--accent-bg); font-weight: 700; }
+  .menu-thumb {
+    flex-shrink: 0;
+    width: 80px; height: 45px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+  .menu-thumb-inner {
+    width: 100vw; height: 100vh;
+    transform: scale(0.075);
+    transform-origin: top left;
+    pointer-events: none;
+    position: absolute;
+    top: 0; left: 0;
+  }
+  .menu-panel .menu-item.active .menu-thumb { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+  .overview-overlay {
+    position: fixed; inset: 0;
+    background: rgba(7, 8, 4, 0.9);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+  .overview-overlay.open { display: flex; }
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 1200px;
+  }
+  .overview-thumb {
+    aspect-ratio: 16/9;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-warm);
+    transition: border-color 0.15s;
+  }
+  .overview-thumb:hover { border-color: var(--accent); }
+  .overview-thumb.current { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .overview-thumb-num {
+    position: absolute;
+    bottom: 4px; left: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text);
+    background: rgba(7, 8, 4, 0.7);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .blackout-overlay { position: fixed; inset: 0; z-index: 250; display: none; }
+  .blackout-overlay.active { display: block; }
+
+  .laser-dot {
+    position: fixed;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 60, 40, 0.8);
+    box-shadow: 0 0 10px rgba(255, 60, 40, 0.6);
+    pointer-events: none;
+    z-index: 280;
+    display: none;
+    transform: translate(-50%, -50%);
+  }
+  .laser-dot.active { display: block; }
+
+  .help-overlay {
+    position: fixed; inset: 0;
+    background: rgba(7, 8, 4, 0.85);
+    z-index: 310;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .help-overlay.open { display: flex; }
+  .help-card {
+    background: var(--bg-warm);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    max-width: 430px;
+    width: 90%;
+  }
+  .help-card h3 { font-size: 14px; margin-bottom: 18px; }
+  .help-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 15px; color: var(--text-secondary); }
+  .help-row kbd {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+  }
+
+  .notes-panel {
+    position: fixed;
+    bottom: -220px;
+    left: 0; right: 0;
+    height: 200px;
+    background: var(--bg-warm);
+    border-top: 2px solid var(--accent);
+    z-index: 120;
+    padding: 16px 28px;
+    overflow-y: auto;
+    transition: bottom 0.3s ease;
+  }
+  .notes-panel.open { bottom: 0; }
+  .notes-panel-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .notes-panel-content { font-size: 16px; line-height: 1.55; color: var(--text); max-width: 90ch; }
+
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 58px;
+    background: rgba(11, 12, 8, 0.95);
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+  }
+  .mobile-nav button {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 20px;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 84px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .mobile-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .mobile-nav-counter { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .progress, .menu-panel, .menu-overlay, .notes-panel { transition: none; }
+    .slide.active > * { animation: none; }
+    .cursor { animation: none; }
+  }
+
+  @media (max-width: 1024px) {
+    .slide { padding: 40px 52px; }
+    h1 { font-size: 58px; }
+    h2 { font-size: 42px; margin-bottom: 18px; }
+    p { font-size: 19px; }
+    li { font-size: 20px; }
+    .title-slide { padding-left: 52px; }
+    .title-slide h1 { font-size: 88px; }
+    .closing-slide h1 { font-size: 72px; }
+    .centered-heading { font-size: 44px; }
+    .stat .number { font-size: 40px; }
+    pre { font-size: 15px; }
+    table { font-size: 17px; }
+  }
+
+  @media (max-width: 768px) {
+    .slide {
+      padding: 28px 24px 76px;
+      justify-content: flex-start;
+      padding-top: 52px;
+      overflow-y: auto;
+    }
+    .slide::before { display: none; }
+    h1 { font-size: 42px; }
+    h2 { font-size: 31px; margin-bottom: 14px; }
+    h3 { font-size: 12px; margin-bottom: 12px; }
+    p { font-size: 17px; line-height: 1.55; }
+    li { font-size: 17px; margin-bottom: 12px; padding-left: 26px; }
+    li::before { font-size: 15px; }
+    .tagline { font-size: 20px; }
+    .subtitle { font-size: 16px; }
+    blockquote { font-size: 17px; padding: 12px 16px; }
+    .divider { margin-bottom: 16px; }
+
+    .title-slide { justify-content: center; padding: 24px; }
+    .title-slide h1 { font-size: 54px; }
+    .title-slide .tagline { font-size: 20px; }
+    .title-slide .subtitle { font-size: 12px; }
+
+    .centered-slide { justify-content: center; padding-top: 0; }
+    .centered-heading { font-size: 30px; }
+    .centered-sub { font-size: 18px; }
+
+    .closing-slide { justify-content: center; padding-top: 0; }
+    .closing-slide h1 { font-size: 46px; }
+    .closing-slide .tagline { font-size: 19px; }
+
+    .card-row { flex-direction: column; gap: 14px; }
+    .card { padding: 18px 20px; }
+    .card p, .card li { font-size: 15px; }
+
+    .stat-row { flex-wrap: wrap; gap: 12px; }
+    .stat { flex: 1 1 calc(50% - 6px); min-width: 120px; padding: 16px 12px; }
+    .stat .number { font-size: 34px; }
+    .stat .label { font-size: 13px; }
+
+    .phase { gap: 14px; padding: 13px 0; }
+    .phase-marker { width: 38px; height: 38px; font-size: 14px; }
+    .phase-content h3 { font-size: 18px; }
+    .phase-content p { font-size: 14px; }
+
+    .week-map { flex-wrap: wrap; gap: 14px 0; margin-top: 24px; }
+    .week-map::before { display: none; }
+    .wm-day { flex: 1 1 33%; padding-top: 24px; }
+    .wm-what { font-size: 14px; }
+
+    .flow { flex-direction: column; gap: 12px; }
+    .flow-step:not(:last-child)::after { content: '\2193'; right: auto; left: 50%; top: auto; bottom: -18px; transform: translateX(-50%); }
+    .flow-step h4 { font-size: 19px; }
+    .flow-step p { font-size: 14px; }
+
+    .timeline { flex-direction: column; margin: 20px 0 10px; }
+    .timeline::before { top: 2%; bottom: 6%; left: 6px; right: auto; width: 2px; height: auto; }
+    .tl-event { padding: 0 0 20px 30px; }
+    .tl-event::before { top: 4px; }
+    .tl-what { font-size: 17px; }
+
+    pre { font-size: 12.5px; padding: 46px 16px 18px; line-height: 1.65; }
+    table { font-size: 14px; display: block; overflow-x: auto; }
+    th, td { padding: 10px 12px; }
+    .review-comment-body { font-size: 16px; padding: 14px 16px; }
+    .review-comment-header { font-size: 12px; padding: 10px 14px; }
+
+    .control-bar { display: none; }
+    .mobile-nav { display: flex; }
+
+    .menu-btn { top: 14px; right: 16px; width: 38px; height: 38px; }
+    .menu-panel { width: 280px; right: -300px; padding: 50px 18px 18px; }
+    .menu-panel .menu-item { font-size: 15px; padding: 8px 10px; }
+    .menu-thumb { display: none; }
+  }
+
+  @media (max-width: 420px) {
+    .slide { padding: 20px 16px 76px; padding-top: 40px; }
+    h2 { font-size: 27px; }
+    .title-slide h1 { font-size: 42px; }
+    .closing-slide h1 { font-size: 38px; }
+    .stat-row { gap: 8px; }
+    .stat { padding: 12px 8px; }
+    .stat .number { font-size: 28px; }
+    .card { padding: 14px 16px; }
+    .mobile-nav button { padding: 10px 14px; font-size: 13px; min-width: 72px; }
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 0: Title -->
+  <div class="slide title-slide active" data-slide="0"
+       data-notes="Welcome. This is not a tools demo. It's about how working with AI feels once it's part of your daily routine. Everything here comes from real usage on the Premium Billing team.">
+    <div class="kicker"><span class="acc">you@wix</span>:~/day-one $ start --time 09:04</div>
+    <h1>AI as a <span class="em">coworker</span><span class="cursor"></span></h1>
+    <div class="tagline">One workday, hour by hour, on a team where the agent already works here</div>
+    <div class="subtitle">SHAY K &middot; PREMIUM PLATFORM &middot; SESSION FOR KICKSTART</div>
+  </div>
+
+  <!-- 1: The setup -->
+  <div class="slide centered-slide" data-slide="1"
+       data-notes="Set the story up: this whole talk is one working day, told hour by hour. At 09:15 a bug lands on you. By 10:30 you're fixing it. At 12:49 a bot reviews your PR. Mid-afternoon you're the reviewer, and at 16:40 it gives you one wrong answer. At 17:45, your first production ticket. Everything in it really happened on our team, just compressed into one day. And the mental model to carry through all of it: the agent is a teammate with endless energy and zero context. One number to make this non-optional: about half the code committed in 2026 is AI-assisted. This day isn't hypothetical, it's most days here. Ground the word agent before moving on: it is the AI coding tool in the terminal and the IDE, Wix sets it up on day one, and half the code committed this year is AI-assisted.">
+    <h3>day-one</h3>
+    <h2 class="centered-heading">One day with a <span class="em">teammate</span> who never sleeps.</h2>
+    <hr class="divider">
+    <p class="centered-sub">"The agent" is the AI coding tool in your terminal and IDE. Every scene here really happened on our team.</p>
+    <div class="week-map">
+      <div class="wm-day" style="--c:#cff54a;"><div class="wm-name">09:15</div><div class="wm-what">You get a bug</div></div>
+      <div class="wm-day" style="--c:#59c8ff;"><div class="wm-name">10:30</div><div class="wm-what">You fix it</div></div>
+      <div class="wm-day" style="--c:#b79aff;"><div class="wm-name">12:49</div><div class="wm-what">AI reviews your PR</div></div>
+      <div class="wm-day" style="--c:#ff8a5c;"><div class="wm-name">16:40</div><div class="wm-what">It gets one wrong</div></div>
+      <div class="wm-day" style="--c:#ffc94d;"><div class="wm-name">17:45</div><div class="wm-what">A production ticket</div></div>
+    </div>
+  </div>
+
+  <!-- 2: Debugging, the strong ask -->
+  <div class="slide" data-slide="2"
+       data-notes="09:15. Your first ticket: a server alert, SiteMetadataService throwing 500s in prod, about 5% of calls, NullPointerException. No frontend involved, no screenshot to lean on: just a stack trace and production behavior. This is the moment most people paste the error into the agent and type 'fix it'. That's the weak ask: it forces the agent to guess, and guesses come back confident. Here's the strong ask, copy it word for word. Four parts: the error, where the code lives, expected versus actual, how to reproduce. And the last line is the whole trick, it forbids the agent from touching code until it commits to suspects and a way to prove them. That single line turns it from a guesser into a debugger.">
+    <h3>09:15</h3>
+    <h2>You get a bug. <span class="em">Copy</span> this prompt.</h2>
+    <hr class="divider">
+    <p>The agent runs inside the repo. It reads code and runs tests.</p>
+    <pre><span class="cmt"># Ticket: "SiteMetadataService throwing 500s in prod"
+# The weak move: paste the stack trace, type "fix it". Don't.</span>
+
+getSiteMetadata returns 500 for ~5% of sites.
+Stack trace: &lt;paste it&gt;
+The handler is SiteMetadataService.getMetadata.
+Expected: metadata response. Actual: NullPointerException.
+Reproduce: msid 3f2a&#8230; fails every time. New sites work.
+
+<span class="acc">Before you change anything: give me your two best
+suspects, and how we prove each one.</span></pre>
+  </div>
+
+  <!-- 3: Working in modes -->
+  <div class="slide day-tue" data-slide="3"
+       data-notes="10:30. The first suspect was right, now you write the fix. And say the design choice out loud, it matters at 12:49: the fix fills the missing field AND adds a small site_source field that records where each value came from, backfill or template or user, and this is the rhythm that keeps it safe. It's also what the industry converged on in 2026: separate modes with review points between them. Research: the agent reads, you forbid edits, 'don't change anything yet' is a real instruction, use it. Plan: it proposes steps and risks, and YOU approve the scope before any code exists. Implement: one step at a time, small diffs, the stop rule is real: if the plan touches more than a couple of files, split the task. Verify: it runs the tests and shows you output; green is the finish line, not 'looks done'. Each arrow between modes is where you stay in control. By noon, the branch is green.">
+    <h3>10:30</h3>
+    <h2>You fix it in <span class="em">four moves</span></h2>
+    <hr class="divider">
+    <p>Its first suspect was right: old sites are missing a field. The fix: fill it in, and record where each value came from.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="fs-num">01</div>
+        <h4>Research</h4>
+        <p>"Read the site-metadata flow. Don't change anything yet."</p>
+      </div>
+      <div class="flow-step">
+        <div class="fs-num">02</div>
+        <h4>Plan</h4>
+        <p>It proposes steps and risks. You approve the scope.</p>
+      </div>
+      <div class="flow-step">
+        <div class="fs-num">03</div>
+        <h4>Implement</h4>
+        <p>One step, small diff. Too many files? Split it.</p>
+      </div>
+      <div class="flow-step">
+        <div class="fs-num">04</div>
+        <h4>Verify</h4>
+        <p>"Run the tests. Show me the output." Green is the finish line.</p>
+      </div>
+    </div>
+    <p>Nothing moves without your OK.</p>
+  </div>
+
+  <!-- 4: PR review, how it works -->
+  <div class="slide day-wed" data-slide="4"
+       data-notes="12:40. You open the PR. You expect to wait a day for review, that's what internships taught you. Nine minutes later there's a review on it. Who wrote it: the team's PR-review agent. Why we built it: once agents made writing code fast, the slow part became waiting for review, so we pointed an agent at the review queue instead of lowering the bar. First pass only: your teammates still review and still own the merge. Walk the flow: the agent noticed the PR on its own. It looked at WHICH files you touched to decide how careful to be, a README change gets a light pass, your change is in a core flow, so it gets the deep one. It reviewed against our written team rules, not generic best practices. And it commented like a teammate: inline, on the lines. When you push fixes, it re-reviews just the new commits. Nothing about the PR process is different, the first reviewer just isn't a person.">
+    <h3>12:40</h3>
+    <h2>You open the PR. <span class="em">Nine minutes</span> later, a review.</h2>
+    <hr class="divider">
+    <p>It came from the team's PR-review agent, built because writing code got fast and waiting for review did not. One of its comments is about your diff.</p>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-marker">01</div>
+        <div class="phase-content"><h3>You open a PR</h3><p>It picks it up on its own.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">02</div>
+        <div class="phase-content"><h3>It checks what you touched</h3><p>README change: light pass. Business logic: deep pass.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">03</div>
+        <div class="phase-content"><h3>It reviews against our rules</h3><p>Written team knowledge, not generic best practices.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">04</div>
+        <div class="phase-content"><h3>It comments like a teammate</h3><p>Inline, on your lines. Push a fix, it re-reviews.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5: A real finding -->
+  <div class="slide day-wed" data-slide="5"
+       data-notes="12:49. This is the comment sitting on your diff, the kind the bot actually leaves. Your morning fix added a new field, site_source, right next to an existing one, site_type. Both had a value called TEMPLATE. Code compiled, looked clean, mirrored the existing pattern perfectly. That's exactly why it's dangerous: now the same real-world situation can be written two different ways, and every system reading this data can get contradicting answers. Notice the comment isn't 'this is wrong', it's two questions. That's what a good review comment looks like, whoever wrote it. And here's the twist: the first time this exact pattern showed up, the bot approved it.">
+    <h3>12:49</h3>
+    <h2>The comment waiting <span class="em">on your diff</span></h2>
+    <hr class="divider">
+    <div class="review-comment">
+      <div class="review-comment-header"><span class="bot-avatar">AI</span>pr-review-bot commented on site_metadata.proto</div>
+      <div class="review-comment-body">
+        You added <code>site_source</code> with the value <code>TEMPLATE</code>. But <code>site_type</code>, right above it, already has <code>TEMPLATE</code>. The same situation can now be written two ways. What prevents a contradictory combination, and which field wins if they disagree?
+      </div>
+    </div>
+    <p>Two questions, not a verdict. And the first time this pattern showed up, the bot approved it.</p>
+  </div>
+
+  <!-- 6: Inside the skill -->
+  <div class="slide day-wed" data-slide="6"
+       data-notes="You ask your team lead: how did the bot know to ask that? Answer: it didn't, once. This is the actual review skill, the document the bot reviews from. Real excerpt, lightly trimmed. The day after the bot approved that near-duplicate field and a teammate caught it, we wrote this rule. Read the three steps: read the existing field's FULL value list from master, not just the diff. Build the overlap table yourself, value by value. And don't accept the author's 'why I didn't reuse X' paragraph on faith, verify it. Bottom line carries the PR number of the original miss, so the rule remembers its own origin story. That's what 'the agent learns' really means: nothing magical, someone wrote the lesson down, and now it runs on every PR forever.">
+    <h3>lunch &middot; where the rule came from</h3>
+    <h2>How did it know? <span class="em">It didn't</span>. Not the first time.</h2>
+    <hr class="divider">
+    <pre><span class="cmt"># from our team's review skill. Real rule, names simplified.</span>
+
+### New field / enum: semantic-overlap check <span class="acc">(ALWAYS-ON)</span>
+
+Trigger: a new field lands next to a similar one
+(site_source next to site_type).
+
+1. Read the existing field's FULL value list from master.
+2. Build the overlap table yourself, value by value.
+3. Do NOT just accept the author's "why not reuse X". Check it.
+
+<span class="cmt">Canonical miss: PR #18874.</span></pre>
+    <p>This document is a <strong>skill</strong>: team knowledge written down, read by the agent before every review.</p>
+  </div>
+
+  <!-- 7: Improve the skill -->
+  <div class="slide day-wed" data-slide="7"
+       data-notes="13:20. The part most people miss: a skill is not magic and it is not locked. It is a markdown file in the repo. Anyone can improve it, including you in week one. The trigger to watch for: you corrected the agent twice about the same thing, or it missed something a teammate caught. That is a rule waiting to be written. Write it in plain words with one example of the miss, and open a PR like any other code change. From the next run, every teammate's agent works with your rule. This is the honest answer to how the agent keeps getting better: nobody retrains a model, someone writes a sentence. Your first contribution to the team can be a rule, not code.">
+    <h3>13:20 &middot; you improve the skill</h3>
+    <h2>A skill is a file. <span class="em">You can edit it.</span></h2>
+    <hr class="divider">
+    <p>Nobody retrains a model. Someone writes the lesson down.</p>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-marker">01</div>
+        <div class="phase-content"><h3>Notice the repeat</h3><p>You corrected the agent twice about the same thing.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">02</div>
+        <div class="phase-content"><h3>Write it into the skill</h3><p>Plain words, one example. Open a PR like any change.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">03</div>
+        <div class="phase-content"><h3>Every teammate gets it</h3><p>From the next run, every teammate benefits.</p></div>
+      </div>
+    </div>
+    <p>Your first contribution here can be a rule, not code.</p>
+  </div>
+
+  <!-- 8: AI code smells -->
+  <div class="slide day-wed" data-slide="8"
+       data-notes="14:30. Now it flips: a teammate asks you to review their PR. A big diff, in code you barely know. The trap for a new developer is pretending: skim it, approve it, hope. Instead, review with the agent. Ask it to walk you through the PR: what changed and why, which parts are risky, what the tests do not cover, and check it against the team review skill, the same rules that reviewed your PR at noon. Then keep the split that runs through the whole day: it explains, you judge, and you post the comments yourself because your name is on the review. One warning worth saying out loud: AI-written code looks clean and confident. Generic names, a comment on every line, methods that do too much, sometimes a call to an API that does not exist. When you cannot find something, ask where it is defined.">
+    <h3>14:30 &middot; your turn to review</h3>
+    <h2>Today <span class="em">you're</span> the reviewer</h2>
+    <hr class="divider">
+    <p>A teammate asks you to review their PR. Big diff, code you barely know.</p>
+    <pre>Walk me through this PR: what changed, and why.
+Which parts are risky? What do the tests not cover?
+Check it against our review skill.
+<span class="acc">Questions only. I make the call on each one.</span></pre>
+    <ul>
+      <li>It explains and flags. You judge.</li>
+      <li>The rules that reviewed you at 12:49 now work for you.</li>
+      <li>You post the comments. Your name is on the review.</li>
+    </ul>
+  </div>
+
+  <!-- 9: Thursday, it burns you -->
+  <div class="slide day-thu" data-slide="9"
+       data-notes="16:40, two hours after you felt like a senior, it gives you one wrong answer. Your team lead asks how many sites the morning bug affected. You pass it to the agent, and it answers in seconds with a precise number and full confidence. Then you notice: it never ran a query. It made the number up from context. Name the term out loud, they will hear it everywhere: a hallucination, a confident guess dressed as a fact. The model fills a gap with something plausible instead of saying it does not know. The defense is one sentence: show me the query, the test, the source. Sounds right. It isn't, and you almost put it in a Slack message to your team lead. The lesson every dev learns exactly once: it sounds identical when it's right and when it's wrong. A teammate says 'I think'; the agent rarely does. The rule of thumb: trust it where a mistake is cheap to spot, tests and repeated code fail loudly. Double-check where a wrong answer looks exactly like a right one, money, permissions, and user-data logic fail silently, and quoted numbers need their query shown. The fix is one sentence: 'show me the query / the test / the source.' It will, happily. AI makes writing code cheap. What goes live is still on you.">
+    <h3>16:40</h3>
+    <h2>Then it gets <span class="em">one wrong</span></h2>
+    <hr class="divider">
+    <p>Your team lead asks how many sites the bug hit. The agent answers in seconds: a precise number, full confidence. It never ran a query. This is a <strong>hallucination</strong>: a confident guess dressed as a fact.</p>
+    <div class="card-row">
+      <div class="card card-do">
+        <h3>safe-to-lean-on</h3>
+        <ul>
+          <li>Tests, repeated code, small changes everywhere</li>
+          <li>Explaining code you don't know yet</li>
+          <li>First drafts of anything</li>
+        </ul>
+      </div>
+      <div class="card card-dont">
+        <h3>double-check</h3>
+        <ul>
+          <li>Money, permissions, user data</li>
+          <li>Numbers it quotes: "show me the query"</li>
+          <li>Anything you can't run yourself</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11: Investigation, triage -->
+  <div class="slide day-fri" data-slide="10"
+       data-notes="17:45. Support pings: a site owner says their campaign email went out twice, and it is assigned to you. You have never touched production; the agent has the access. One command starts it, /investigation, and the four steps on the slide are the skill's real phases. Hand it the ticket link and one symptom line. It triages first, because most tickets are not ours: a service that was restarting, a weird browser extension, another team's bug. It digs through logs, data, metrics and recent changes. And it writes the report as it goes, every query and finding into a draft doc, so evidence never lives only in a terminal. This one comes back ours: a timeout, then a second send.">
+    <h3>17:45</h3>
+    <h2>Support pings: <span class="em">"sent twice?"</span></h2>
+    <hr class="divider">
+    <p>A site owner says their campaign email went out twice. One command starts it: <code>/investigation</code>.</p>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-marker">01</div>
+        <div class="phase-content"><h3>Hand it the ticket</h3><p>The link, the site id, one line: "sent twice?"</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">02</div>
+        <div class="phase-content"><h3>It triages first</h3><p>Infra? User setup? Another team? Ours? Most tickets are not ours.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">03</div>
+        <div class="phase-content"><h3>It digs</h3><p>Logs, data, metrics, recent changes.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-marker">04</div>
+        <div class="phase-content"><h3>It reports as it goes</h3><p>Every query and finding lands in a draft doc.</p></div>
+      </div>
+    </div>
+    <p>This one comes back: ours. The evidence is on the next slide.</p>
+  </div>
+
+  <!-- 12: Investigation, the dig -->
+  <div class="slide day-fri" data-slide="11"
+       data-notes="18:05, triage says it's ours. You've never touched production; the agent has, through the logs and data tools. It pulls the campaign's send jobs, reads the logs around the two sends, and lays out a timeline: send click, the request timed out, second click, both jobs delivered. One habit from our real skill: write the report AS you investigate, not after, every query and finding goes into a draft doc, so evidence never lives only in your head or a lost terminal. Then the split that never changes, no matter how senior you get: the agent does the digging. You do not re-run its queries; you challenge the conclusion. Does the story explain both sends? Show me the two send jobs, the evidence the whole story depends on. If that holds, you decide the fix: a guard so a double click cannot send twice. Support takes the summary from the draft report and handles the site owner. You close your first production ticket before dinner.">
+    <h3>18:05</h3>
+    <h2>The logs become <span class="em">a timeline</span></h2>
+    <hr class="divider">
+    <p>From its draft report: one campaign, on a timeline.</p>
+    <div class="timeline">
+      <div class="tl-event"><div class="tl-time">16:58:02</div><div class="tl-what">Send click</div><div class="tl-sub">Send job starts</div></div>
+      <div class="tl-event"><div class="tl-time">16:58:12</div><div class="tl-what">Timeout</div><div class="tl-sub">No response. The spinner stops.</div></div>
+      <div class="tl-event"><div class="tl-time">16:58:19</div><div class="tl-what">Second click</div><div class="tl-sub">Owner tries again</div></div>
+      <div class="tl-event bad"><div class="tl-time">16:58:20</div><div class="tl-what">Two sends</div><div class="tl-sub">Both jobs delivered</div></div>
+    </div>
+    <ul>
+      <li><strong>Your job:</strong> challenge it. Does this explain both sends? "Show me the two send jobs."</li>
+      <li><strong>Then decide:</strong> a guard, so a double click cannot send twice. Support gets the summary from the report.</li>
+    </ul>
+  </div>
+
+  <!-- 13: Closing -->
+  <div class="slide closing-slide" data-slide="12"
+       data-notes="Wrap up: that was one day, and every scene in it really happened here, just not all to one person before dinner. Real days are messier, but the three habits transfer whole: theory before fix (morning), show me the query (afternoon), judgment stays yours (evening). One warning to leave them with, and it matters more for them than for anyone senior: if you only prompt and paste, you learn to prompt but not to think. Use the agent for the mechanical parts so you have time to understand the code and the decisions, and every now and then solve one without it. Questions welcome, and yes, the agent helped build this deck.">
+    <h1>That was <span class="em">one day</span></h1>
+    <div class="tagline">Three habits to keep: theory before fix &middot; show me the query &middot; judgment stays yours.</div>
+    <div class="footer-note">SHAY K &middot; PREMIUM PLATFORM &middot; THIS DECK WAS BUILT WITH THE AGENT, NATURALLY</div>
+  </div>
+
+</div>
+
+<button class="menu-btn" id="menuBtn" aria-label="Slide menu">
+  <span></span><span></span><span></span>
+</button>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<div class="menu-panel" id="menuPanel">
+  <h3>slides</h3>
+  <div id="menuItems"></div>
+</div>
+
+<div class="control-bar" id="controlBar">
+  <button id="prev" aria-label="Previous slide">&#8592;</button>
+  <div class="control-bar-center">
+    <span class="slide-counter" id="counter"></span>
+    <span class="elapsed-timer" id="timer">0:00</span>
+  </div>
+  <button id="next" aria-label="Next slide">&#8594;</button>
+</div>
+<div class="progress" id="progress"></div>
+
+<div class="overview-overlay" id="overviewOverlay"></div>
+
+<div class="blackout-overlay" id="blackoutOverlay"></div>
+
+<div class="laser-dot" id="laserDot"></div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-card">
+    <h3>keyboard-shortcuts</h3>
+    <div class="help-row"><span>Next slide</span><span><kbd>&#8594;</kbd> <kbd>Space</kbd></span></div>
+    <div class="help-row"><span>Previous slide</span><kbd>&#8592;</kbd></div>
+    <div class="help-row"><span>First / last slide</span><span><kbd>Home</kbd> <kbd>End</kbd></span></div>
+    <div class="help-row"><span>Slide overview</span><kbd>G</kbd></div>
+    <div class="help-row"><span>Blackout (black / white)</span><span><kbd>B</kbd> <kbd>W</kbd></span></div>
+    <div class="help-row"><span>Laser pointer</span><kbd>L</kbd></div>
+    <div class="help-row"><span>Speaker notes</span><kbd>N</kbd></div>
+    <div class="help-row"><span>This help</span><kbd>?</kbd></div>
+    <div class="help-row"><span>Close overlay</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-panel-label">Speaker notes</div>
+  <div class="notes-panel-content" id="notesContent"></div>
+</div>
+
+<div class="mobile-nav" id="mobileNav">
+  <button id="mobilePrev" aria-label="Previous slide">&#8592; Prev</button>
+  <span class="mobile-nav-counter" id="mobileCounter">1 / 13</span>
+  <button id="mobileNext" aria-label="Next slide">Next &#8594;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const slideTitles = [
+    'AI as a coworker',
+    'One day',
+    '09:15, you get a bug',
+    '10:30, you fix it in four moves',
+    '12:40, nine minutes later',
+    '12:49, the comment',
+    'Lunch, where the rule came from',
+    '13:20, improve the skill',
+    '14:30, you review with it',
+    '16:40, it gets one wrong',
+    '17:45, sent twice?',
+    '18:05, the investigation',
+    'That was one day'
+  ];
+
+  const menuItems = document.getElementById('menuItems');
+  slideTitles.forEach((title, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'menu-item' + (i === 0 ? ' active' : '');
+    const thumb = '<div class="menu-thumb"><div class="menu-thumb-inner">' + slides[i].innerHTML + '</div></div>';
+    btn.innerHTML = thumb + '<span>' + title + '</span>';
+    btn.addEventListener('click', () => { goTo(i); closeMenu(); });
+    menuItems.appendChild(btn);
+  });
+
+  const menuBtn = document.getElementById('menuBtn');
+  const menuPanel = document.getElementById('menuPanel');
+  const menuOverlay = document.getElementById('menuOverlay');
+
+  function openMenu() { menuPanel.classList.add('open'); menuOverlay.classList.add('open'); }
+  function closeMenu() { menuPanel.classList.remove('open'); menuOverlay.classList.remove('open'); }
+  menuBtn.addEventListener('click', () => { menuPanel.classList.contains('open') ? closeMenu() : openMenu(); });
+  menuOverlay.addEventListener('click', closeMenu);
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('mobileCounter').textContent = (current + 1) + ' / ' + total;
+    menuItems.querySelectorAll('.menu-item').forEach((item, i) => {
+      item.classList.toggle('active', i === current);
+    });
+    if (typeof updateNotes === 'function') updateNotes();
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+  const controlBar = document.getElementById('controlBar');
+  let hideTimeout;
+  function showControlBar() {
+    controlBar.classList.remove('hidden');
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => controlBar.classList.add('hidden'), 2000);
+  }
+  document.addEventListener('mousemove', showControlBar);
+  document.addEventListener('keydown', showControlBar);
+  showControlBar();
+
+  document.getElementById('mobilePrev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('mobileNext').addEventListener('click', () => goTo(current + 1));
+
+  const overviewOverlay = document.getElementById('overviewOverlay');
+  function openOverview() {
+    let html = '<div class="overview-grid">';
+    slides.forEach((s, i) => {
+      html += '<div class="overview-thumb' + (i === current ? ' current' : '') + '" data-idx="' + i + '">' +
+        '<div class="overview-thumb-num">' + (i + 1) + '</div></div>';
+    });
+    html += '</div>';
+    overviewOverlay.innerHTML = html;
+    overviewOverlay.classList.add('open');
+    overviewOverlay.querySelectorAll('.overview-thumb').forEach(t => {
+      t.addEventListener('click', () => { goTo(+t.dataset.idx); closeOverview(); });
+    });
+  }
+  function closeOverview() { overviewOverlay.classList.remove('open'); }
+
+  const blackoutOverlay = document.getElementById('blackoutOverlay');
+  let blackoutActive = false;
+  function toggleBlackout(color) {
+    if (blackoutActive) { blackoutOverlay.classList.remove('active'); blackoutActive = false; return; }
+    blackoutOverlay.style.background = color;
+    blackoutOverlay.classList.add('active');
+    blackoutActive = true;
+  }
+  blackoutOverlay.addEventListener('click', () => { blackoutOverlay.classList.remove('active'); blackoutActive = false; });
+
+  const laserDot = document.getElementById('laserDot');
+  let laserActive = false;
+  function toggleLaser() {
+    laserActive = !laserActive;
+    laserDot.classList.toggle('active', laserActive);
+    document.body.style.cursor = laserActive ? 'none' : '';
+  }
+  document.addEventListener('pointermove', (e) => {
+    if (!laserActive) return;
+    laserDot.style.left = e.clientX + 'px';
+    laserDot.style.top = e.clientY + 'px';
+  });
+
+  const helpOverlay = document.getElementById('helpOverlay');
+  function toggleHelp() { helpOverlay.classList.toggle('open'); }
+  helpOverlay.addEventListener('click', (e) => { if (e.target === helpOverlay) helpOverlay.classList.remove('open'); });
+
+  const notesPanel = document.getElementById('notesPanel');
+  let notesOpen = false;
+  function toggleNotes() {
+    notesOpen = !notesOpen;
+    notesPanel.classList.toggle('open', notesOpen);
+    updateNotes();
+  }
+  function updateNotes() {
+    if (!notesOpen) return;
+    const note = slides[current].getAttribute('data-notes') || 'No notes for this slide.';
+    document.getElementById('notesContent').textContent = note;
+  }
+
+  function closeAllOverlays() {
+    closeMenu();
+    closeOverview();
+    if (blackoutActive) { blackoutOverlay.classList.remove('active'); blackoutActive = false; }
+    helpOverlay.classList.remove('open');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); closeAllOverlays(); return; }
+    if (blackoutActive) { toggleBlackout(); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    if (e.key === 'g' || e.key === 'G') { e.preventDefault(); overviewOverlay.classList.contains('open') ? closeOverview() : openOverview(); }
+    if (e.key === 'b' || e.key === 'B') { e.preventDefault(); toggleBlackout('#000'); }
+    if (e.key === 'w' || e.key === 'W') { e.preventDefault(); toggleBlackout('#fff'); }
+    if (e.key === 'l' || e.key === 'L') { e.preventDefault(); toggleLaser(); }
+    if (e.key === 'n' || e.key === 'N') { e.preventDefault(); toggleNotes(); }
+    if (e.key === '?') { e.preventDefault(); toggleHelp(); }
+  });
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  });
+  document.addEventListener('touchend', e => {
+    const diffX = touchStartX - e.changedTouches[0].clientX;
+    const diffY = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+      diffX > 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  });
+
+  let timerStarted = false;
+  let startTime;
+  const timerEl = document.getElementById('timer');
+  function startTimer() {
+    if (timerStarted) return;
+    timerStarted = true;
+    startTime = Date.now();
+    setInterval(() => {
+      const s = Math.floor((Date.now() - startTime) / 1000);
+      const m = Math.floor(s / 60);
+      timerEl.textContent = m + ':' + String(s % 60).padStart(2, '0');
+    }, 1000);
+  }
+  document.addEventListener('keydown', startTimer, { once: true });
+  document.addEventListener('click', startTimer, { once: true });
+
+  goTo(0);
+</script>
+</body>
+</html>
