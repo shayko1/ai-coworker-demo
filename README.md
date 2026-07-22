@@ -29,6 +29,19 @@ suspects, and how we prove each one.
 Point out: it reads the code and the fixtures itself, names the missing
 `settings` object on old sites, and proposes how to prove it before any fix.
 
+Then fix it, the same four moves as the deck:
+
+```
+The first suspect was right. Fix it:
+old sites without settings fall back to locale "en", timezone "UTC".
+Plan first. Small diff.
+Then run node test/run-tests.js, show the output,
+and add a test that covers an old site.
+```
+
+Point out: it plans before touching code, the diff stays small, and green
+tests are the finish line. Reset for the next run: `git checkout .`
+
 ## Moment 2, 12:49: the review comment
 
 There is an open PR that adds `siteSource` with the value `TEMPLATE`, right
@@ -63,13 +76,5 @@ the fix you decide on is a guard so a double click cannot send twice.
 
 ## Homework
 
-Clone this repo, run Moment 1 yourself, and fix the bug with the agent:
-theory first, proof second, then the fix, then a test that covers old sites.
-
-## Demo notes for the presenter
-
-- Rehearse each moment once before the session. Agents word things
-  differently run to run; the findings stay the same.
-- Keep screenshots of one good run as a fallback.
-- Tests pass on main on purpose: they only cover new sites. Whether the
-  agent flags that gap is a nice unscripted moment in Moment 1.
+Clone this repo and run Moment 1 end to end yourself: theory, proof, fix,
+and a test that covers old sites.
