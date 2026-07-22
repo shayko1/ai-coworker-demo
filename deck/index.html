@@ -242,6 +242,12 @@
   .dense pre { font-size: 18px; line-height: 1.55; padding: 44px 26px 18px; margin: 8px 0; }
   .dense pre.pre-bad { font-size: 17px; padding: 42px 24px 16px; }
 
+  .dense .flow { gap: 18px; margin: 16px 0 6px; }
+  .dense .flow-step { padding: 14px 16px; }
+  .dense .flow-step h4 { font-size: 22px; margin-bottom: 6px; }
+  .dense .flow-step p { font-size: 16px; }
+  .dense .flow-step .fs-num { margin-bottom: 6px; }
+
   pre.pre-bad {
     border-color: rgba(255, 109, 77, 0.45);
     color: var(--text-muted);
@@ -1025,7 +1031,7 @@ suspects, and how we prove each one.</span></pre>
 
   <!-- 3: Working in modes -->
   <div class="slide day-tue" data-slide="4"
-       data-notes="10:30. The first suspect was right, now you write the fix. And say the design choice out loud, it matters at 12:49: the fix fills the missing field AND adds a small site_source field that records where each value came from, backfill or template or user, and this is the rhythm that keeps it safe. It's also what the industry converged on in 2026: separate modes with review points between them. Research: the agent reads, you forbid edits, 'don't change anything yet' is a real instruction, use it. Plan: it proposes steps and risks, and YOU approve the scope before any code exists. Implement: one step at a time, small diffs, the stop rule is real: if the plan touches more than a couple of files, split the task. Verify: it runs the tests and shows you output; green is the finish line, not 'looks done'. Each arrow between modes is where you stay in control. By noon, the branch is green.">
+       data-notes="10:30. The first suspect was right, now you write the fix. And say the design choice out loud, it matters at 12:49: the fix fills the missing field AND adds a small site_source field that records where each value came from, backfill or template or user, and this is the rhythm that keeps it safe. It's also what the industry converged on in 2026: separate modes with review points between them. Research: the agent reads, you forbid edits, 'don't change anything yet' is a real instruction, use it. Plan: it proposes steps and risks, and YOU approve the scope before any code exists. Implement: one step at a time, small diffs, the stop rule is real: if the plan touches more than a couple of files, split the task. Verify: it runs the tests and shows you output; green is the finish line, not 'looks done'. Each arrow between modes is where you stay in control: nothing moves to the next step without your OK. The prompt at the bottom is the whole thing in one message, same one as in the workshop repo. By noon, the branch is green.">
     <h3>10:30</h3>
     <h2>You fix it in <span class="em">four moves</span></h2>
     <hr class="divider">
@@ -1052,7 +1058,11 @@ suspects, and how we prove each one.</span></pre>
         <p>"Run the tests. Show me the output." Green is the finish line.</p>
       </div>
     </div>
-    <p>Nothing moves without your OK.</p>
+    <pre>The first suspect was right. Fix it:
+old sites without settings fall back to "en", UTC.
+Plan first. Small diff.
+<span class="acc">Run the tests, show me the output,
+and add a test that covers an old site.</span></pre>
   </div>
 
   <!-- 4: PR review, how it works -->
