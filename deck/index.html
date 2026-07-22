@@ -375,6 +375,24 @@
   .phase-content h3::before { content: none; }
   .phase-content p { font-size: 22px; margin: 0; line-height: 1.5; color: var(--text-secondary); }
 
+
+  /* actor sequence */
+  .seq { display: flex; flex-direction: column; margin: 10px 0 18px; max-width: 1060px; }
+  .seq-row { display: flex; gap: 24px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--border-soft); }
+  .seq-row:last-child { border-bottom: none; }
+  .seq-actor {
+    flex: 0 0 170px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .seq-actor.you { color: var(--text); }
+  .seq-actor.agent { color: var(--accent); }
+  .seq-actor.team { color: var(--amber); }
+  .seq-text { font-size: 24px; color: var(--text-secondary); line-height: 1.45; }
+
   /* week map (intro diagram) */
   .week-map { display: flex; margin: 44px auto 0; width: 100%; max-width: 1040px; position: relative; }
   .week-map::before {
@@ -923,7 +941,7 @@
     <p class="centered-sub">"The agent" is the AI coding tool in your terminal and IDE. Every scene here really happened on our team.</p>
     <div class="week-map">
       <div class="wm-day" style="--c:#cff54a;"><div class="wm-name">09:15</div><div class="wm-what">You get a bug</div></div>
-      <div class="wm-day" style="--c:#59c8ff;"><div class="wm-name">10:30</div><div class="wm-what">You fix it</div></div>
+      <div class="wm-day" style="--c:#59c8ff;"><div class="wm-name">10:30</div><div class="wm-what">You fix it with the agent</div></div>
       <div class="wm-day" style="--c:#b79aff;"><div class="wm-name">12:49</div><div class="wm-what">AI reviews your PR</div></div>
       <div class="wm-day" style="--c:#ff8a5c;"><div class="wm-name">16:40</div><div class="wm-what">It gets one wrong</div></div>
       <div class="wm-day" style="--c:#ffc94d;"><div class="wm-name">17:45</div><div class="wm-what">A production ticket</div></div>
@@ -936,11 +954,9 @@
     <h3>09:15</h3>
     <h2>You get a bug. <span class="em">Copy</span> this prompt.</h2>
     <hr class="divider">
-    <p>The agent runs inside the repo. It reads code and runs tests.</p>
-    <pre><span class="cmt"># Ticket: "SiteMetadataService throwing 500s in prod"
-# The weak move: paste the stack trace, type "fix it". Don't.</span>
-
-getSiteMetadata returns 500 for ~5% of sites.
+    <p>The agent runs inside the repo: it reads code and runs tests. The ticket: SiteMetadataService throwing 500s in prod.</p>
+    <p>The weak move: paste the trace, type "fix it". Instead:</p>
+    <pre>getSiteMetadata returns 500 for ~5% of sites.
 Stack trace: &lt;paste it&gt;
 The handler is SiteMetadataService.getMetadata.
 Expected: metadata response. Actual: NullPointerException.
@@ -984,29 +1000,19 @@ suspects, and how we prove each one.</span></pre>
 
   <!-- 4: PR review, how it works -->
   <div class="slide day-wed" data-slide="4"
-       data-notes="12:40. You open the PR. You expect to wait a day for review, that's what internships taught you. Nine minutes later there's a review on it. Who wrote it: the team's PR-review agent. Why we built it: once agents made writing code fast, the slow part became waiting for review, so we pointed an agent at the review queue instead of lowering the bar. First pass only: your teammates still review and still own the merge. Walk the flow: the agent noticed the PR on its own. It looked at WHICH files you touched to decide how careful to be, a README change gets a light pass, your change is in a core flow, so it gets the deep one. It reviewed against our written team rules, not generic best practices. And it commented like a teammate: inline, on the lines. When you push fixes, it re-reviews just the new commits. Nothing about the PR process is different, the first reviewer just isn't a person.">
+       data-notes="12:40. You open the PR. You expect to wait a day for review, that's what internships taught you. Nine minutes later there's a review on it. Read the lanes: you open, the agent picks it up on its own and decides how deep to go by what you touched, it reviews against the team's written rules and comments inline, you push a fix and it re-reviews just the new commits, and your teammates do the final review and own the merge. The agent is the first pass, never the last. One important landscape note: this reviewer is our team's own agent, and other teams built theirs; AI-infra now offers a central review agent every team can adopt. On your team, ask two questions in week one: which review agent runs here, and how do I add or update the skills it reads.">
     <h3>12:40</h3>
     <h2>You open the PR. <span class="em">Nine minutes</span> later, a review.</h2>
     <hr class="divider">
     <p>It came from the team's PR-review agent, built because writing code got fast and waiting for review did not. One of its comments is about your diff.</p>
-    <div class="phases">
-      <div class="phase">
-        <div class="phase-marker">01</div>
-        <div class="phase-content"><h3>You open a PR</h3><p>It picks it up on its own.</p></div>
-      </div>
-      <div class="phase">
-        <div class="phase-marker">02</div>
-        <div class="phase-content"><h3>It checks what you touched</h3><p>README change: light pass. Business logic: deep pass.</p></div>
-      </div>
-      <div class="phase">
-        <div class="phase-marker">03</div>
-        <div class="phase-content"><h3>It reviews against our rules</h3><p>Written team knowledge, not generic best practices.</p></div>
-      </div>
-      <div class="phase">
-        <div class="phase-marker">04</div>
-        <div class="phase-content"><h3>It comments like a teammate</h3><p>Inline, on your lines. Push a fix, it re-reviews.</p></div>
-      </div>
+    <div class="seq">
+      <div class="seq-row"><div class="seq-actor you">You</div><div class="seq-text">Open the PR.</div></div>
+      <div class="seq-row"><div class="seq-actor agent">Agent</div><div class="seq-text">Picks it up. README change: light pass. Business logic: deep pass.</div></div>
+      <div class="seq-row"><div class="seq-actor agent">Agent</div><div class="seq-text">Reviews against the team's rules. Comments inline, on your lines.</div></div>
+      <div class="seq-row"><div class="seq-actor you">You</div><div class="seq-text">Push a fix. It re-reviews just the new commits.</div></div>
+      <div class="seq-row"><div class="seq-actor team">Team</div><div class="seq-text">Final review and the merge. The agent is the first pass, never the last.</div></div>
     </div>
+    <p>Every team runs its own review agent; AI-infra now offers a central one. Check what your team uses.</p>
   </div>
 
   <!-- 5: A real finding -->
@@ -1071,18 +1077,18 @@ Trigger: a new field lands next to a similar one
 
   <!-- 8: AI code smells -->
   <div class="slide day-wed" data-slide="8"
-       data-notes="14:30. Now it flips: a teammate asks you to review their PR. A big diff, in code you barely know. The trap for a new developer is pretending: skim it, approve it, hope. Instead, review with the agent. Ask it to walk you through the PR: what changed and why, which parts are risky, what the tests do not cover, and check it against the team review skill, the same rules that reviewed your PR at noon. Then keep the split that runs through the whole day: it explains, you judge, and you post the comments yourself because your name is on the review. One warning worth saying out loud: AI-written code looks clean and confident. Generic names, a comment on every line, methods that do too much, sometimes a call to an API that does not exist. When you cannot find something, ask where it is defined.">
+       data-notes="14:30. Now it flips: a teammate asks you to review their PR. A big diff, in code you barely know. Someone always asks: the review bot already ran the skill, so what am I for? Say it straight: the bot runs the checklist, every time, the same way. You bring what it cannot: context about what the team is trying to do, judgment about design, and ownership of the decision. That is why your ask is different from the bot's pass: walk me through it, what is risky, what did the bot miss. It explains, you judge, you post the comments, your name is on the review.">
     <h3>14:30 &middot; your turn to review</h3>
     <h2>Today <span class="em">you're</span> the reviewer</h2>
     <hr class="divider">
     <p>A teammate asks you to review their PR. Big diff, code you barely know.</p>
     <pre>Walk me through this PR: what changed, and why.
 Which parts are risky? What do the tests not cover?
-Check it against our review skill.
+The review bot already commented. What did it miss?
 <span class="acc">Questions only. I make the call on each one.</span></pre>
     <ul>
       <li>It explains and flags. You judge.</li>
-      <li>The rules that reviewed you at 12:49 now work for you.</li>
+      <li>The bot ran the checklist. You bring context and judgment.</li>
       <li>You post the comments. Your name is on the review.</li>
     </ul>
   </div>
@@ -1116,11 +1122,11 @@ Check it against our review skill.
 
   <!-- 11: Investigation, triage -->
   <div class="slide day-fri" data-slide="10"
-       data-notes="17:45. Support pings: a site owner says their campaign email went out twice, and it is assigned to you. You have never touched production; the agent has the access. One command starts it, /investigation, and the four steps on the slide are the skill's real phases. Hand it the ticket link and one symptom line. It triages first, because most tickets are not ours: a service that was restarting, a weird browser extension, another team's bug. It digs through logs, data, metrics and recent changes. And it writes the report as it goes, every query and finding into a draft doc, so evidence never lives only in a terminal. This one comes back ours: a timeout, then a second send.">
+       data-notes="17:45. Support pings: a site owner says their campaign email went out twice, and it is assigned to you. One command starts it. On our team that is /investigation, a team skill. The centralized system is prod-e, which they have already heard about from the Kickstart group, one of them is hosted with the prod-e team. Same idea at platform scale: every team plugs its knowledge in. The four steps on the slide are the skill's real phases: hand it the ticket link and one symptom line, it triages first because most tickets are not ours, it digs through logs and data and recent changes, and it writes the report as it goes into a draft doc. This one comes back ours.">
     <h3>17:45</h3>
     <h2>Support pings: <span class="em">"sent twice?"</span></h2>
     <hr class="divider">
-    <p>A site owner says their campaign email went out twice. One command starts it: <code>/investigation</code>.</p>
+    <p>A site owner says their campaign email went out twice. One command starts it: <code>/investigation</code>, our team's skill. The central system is <strong>prod-e</strong>, where every team plugs in its own.</p>
     <div class="phases">
       <div class="phase">
         <div class="phase-marker">01</div>
