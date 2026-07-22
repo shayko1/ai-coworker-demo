@@ -950,11 +950,11 @@
 
   <!-- 2: Debugging, the strong ask -->
   <div class="slide" data-slide="2"
-       data-notes="09:15. Your first ticket: a server alert, SiteMetadataService throwing 500s in prod, about 5% of calls, NullPointerException. No frontend involved, no screenshot to lean on: just a stack trace and production behavior. This is the moment most people paste the error into the agent and type 'fix it'. That's the weak ask: it forces the agent to guess, and guesses come back confident. Here's the strong ask, copy it word for word. Four parts: the error, where the code lives, expected versus actual, how to reproduce. And the last line is the whole trick, it forbids the agent from touching code until it commits to suspects and a way to prove them. That single line turns it from a guesser into a debugger.">
+       data-notes="09:15. Your first ticket: a server alert, SiteMetadataService throwing error 500 in prod, about 5% of calls, NullPointerException. No frontend involved, no screenshot to lean on: just a stack trace and production behavior. This is the moment most people paste the error into the agent and type 'fix it'. That's the weak ask: it forces the agent to guess, and guesses come back confident. Here's the strong ask, copy it word for word. Four parts: the error, where the code lives, expected versus actual, how to reproduce. And the last line is the whole trick, it forbids the agent from touching code until it commits to suspects and a way to prove them. That single line turns it from a guesser into a debugger.">
     <h3>09:15</h3>
     <h2>You get a bug. <span class="em">Copy</span> this prompt.</h2>
     <hr class="divider">
-    <p>The agent runs inside the repo: it reads code and runs tests. The ticket: SiteMetadataService throwing 500s in prod.</p>
+    <p>The agent runs inside the repo: it reads code and runs tests. The ticket: SiteMetadataService throwing error 500 in prod.</p>
     <p>The weak move: paste the trace, type "fix it". Instead:</p>
     <pre>getSiteMetadata returns 500 for ~5% of sites.
 Stack trace: &lt;paste it&gt;
