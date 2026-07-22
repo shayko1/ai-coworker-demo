@@ -18,7 +18,8 @@ When it misses something, we add the lesson here. Plain words, one example each.
 
 ## New field or enum: semantic-overlap check (always on)
 
-Trigger: the diff adds a field next to a similar one.
+Trigger: the diff adds a field next to a similar one
+(example: a new state field next to an existing status).
 
 1. Read the existing field's full value list from main, not just the diff.
 2. Build the overlap table yourself, value by value.

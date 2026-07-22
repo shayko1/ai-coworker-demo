@@ -70,10 +70,10 @@ and add a test that covers an old site.
 Point out: it plans before touching code, the diff stays small, and green
 tests are the finish line. Reset for the next run: `git checkout .`
 
-## Moment 2, 12:49: the review comment
+## Moment 2, 14:30: review a PR with the agent
 
-There is an open PR that adds `siteSource` with the value `TEMPLATE`, right
-next to `siteType`, which already has `TEMPLATE`. Ask the agent:
+There is an open PR that adds a `state` field to campaigns, right next to
+`status`, which already holds the same values. Ask the agent:
 
 ```
 Walk me through the open PR: what changed, and why.

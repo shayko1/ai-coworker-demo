@@ -13,14 +13,13 @@ find, what it found in rehearsal, and where to point the room.
 - Point the room at: the last line of the prompt, suspects and proof before
   any fix. That one line is the lesson.
 
-## Moment 2, 12:49: review
+## Moment 2, 14:30: review
 
-- Should find: `siteSource: TEMPLATE` next to `siteType: TEMPLATE`. The two
-  questions: what prevents a contradictory combination, and which field wins.
-- Found in rehearsal: built the overlap table itself, showed `siteSource`
-  fully determines `siteType`, and rejected the PR's "why not reuse" text.
-  Bonus findings: no tests for the new field, missing `siteSource` is silently
-  dropped from the response.
+- Should find: `state` duplicates `status` value for value; only ARCHIVED is
+  new. The two questions: what prevents a contradictory combination (c-201 is
+  already status SENT, state ARCHIVED), and which field wins.
+- Also there to find: `listByState` is a copy of `listByStatus`, and the new
+  field has no tests.
 - Point the room at: the table first. Then open
   `.claude/skills/repo-review-rules/SKILL.md` and show the rule that made it
   happen. A skill is a file.
