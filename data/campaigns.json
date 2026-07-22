@@ -1,7 +1,7 @@
 [
-  { "id": "c-201", "name": "July newsletter", "status": "SENT", "subscribers": 45 },
-  { "id": "c-512", "name": "Summer sale", "status": "SENT", "subscribers": 88 },
-  { "id": "c-778", "name": "New menu launch", "status": "SENT", "subscribers": 1204 },
-  { "id": "c-810", "name": "Fall preview", "status": "SCHEDULED", "subscribers": 900 },
-  { "id": "c-811", "name": "Holiday teaser", "status": "DRAFT", "subscribers": 0 }
+  { "id": "c-201", "name": "July newsletter", "status": "SENT", "subscribers": 45, "state": "ARCHIVED" },
+  { "id": "c-512", "name": "Summer sale", "status": "SENT", "subscribers": 88, "state": "SENT" },
+  { "id": "c-778", "name": "New menu launch", "status": "SENT", "subscribers": 1204, "state": "SENT" },
+  { "id": "c-810", "name": "Fall preview", "status": "SCHEDULED", "subscribers": 900, "state": "SCHEDULED" },
+  { "id": "c-811", "name": "Holiday teaser", "status": "DRAFT", "subscribers": 0, "state": "DRAFT" }
 ]
