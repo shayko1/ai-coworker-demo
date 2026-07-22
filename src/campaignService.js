@@ -19,4 +19,8 @@ function listByStatus(status) {
   return loadCampaigns().filter((c) => c.status === status);
 }
 
-module.exports = { getCampaign, listByStatus, loadCampaigns };
+function listByState(state) {
+  return loadCampaigns().filter((c) => c.state === state);
+}
+
+module.exports = { getCampaign, listByStatus, listByState, loadCampaigns };
