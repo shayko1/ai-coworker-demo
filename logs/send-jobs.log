@@ -1,0 +1,10 @@
+2026-07-21T16:57:41.208Z INFO  send-worker-2  job=sj-4410 campaign=c-512 status=STARTED subscribers=88
+2026-07-21T16:57:44.913Z INFO  send-worker-2  job=sj-4410 campaign=c-512 status=DELIVERED sent=88 failed=0
+2026-07-21T16:58:02.117Z INFO  send-worker-1  job=sj-4411 campaign=c-778 status=STARTED subscribers=1204 trigger=ui-click session=s-90d1
+2026-07-21T16:58:12.121Z ERROR api-gateway    request=r-3382 campaign=c-778 status=TIMEOUT after=10000ms upstream=send-worker-1 note=response not delivered to client
+2026-07-21T16:58:19.454Z INFO  send-worker-3  job=sj-4412 campaign=c-778 status=STARTED subscribers=1204 trigger=ui-click session=s-90d1
+2026-07-21T16:58:20.077Z INFO  send-worker-1  job=sj-4411 campaign=c-778 status=DELIVERED sent=1204 failed=0
+2026-07-21T16:58:26.590Z INFO  send-worker-3  job=sj-4412 campaign=c-778 status=DELIVERED sent=1204 failed=0
+2026-07-21T16:59:03.331Z INFO  send-worker-2  job=sj-4413 campaign=c-201 status=STARTED subscribers=45
+2026-07-21T16:59:05.887Z INFO  send-worker-2  job=sj-4413 campaign=c-201 status=DELIVERED sent=45 failed=0
+2026-07-21T17:41:52.406Z INFO  support-intake ticket=T-8817 campaign=c-778 note="site owner reports campaign email received twice by every subscriber"
