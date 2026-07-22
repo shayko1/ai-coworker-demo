@@ -6,6 +6,34 @@ install.
 
 Deck: https://deckdrop.live/shayk/ai-as-a-coworker (source in `deck/index.html`)
 
+## Before you start
+
+You need Node, git, and a coding agent. On a Wix machine, Claude Code and
+Cursor are part of the standard setup. Check yours:
+
+```
+node --version
+claude --version
+```
+
+If `claude` is missing, install it once with npm: the package is
+`@anthropic-ai/claude-code`, installed globally from the public registry.
+
+Then get the repo and start the agent inside it:
+
+```
+git clone https://github.com/shayko1/ai-coworker-demo.git
+cd ai-coworker-demo
+claude
+```
+
+Cursor works the same way: open this folder, then paste the prompts into the
+agent panel. The agent must run inside this folder, that is how it sees the
+code, the fixtures, and the review rules.
+
+Quick check that everything works: `node src/cli.js 9d41-a2f7` prints
+metadata for a healthy site.
+
 ## Moment 1, 09:15: debug with a theory
 
 The service throws for some sites. See it:
