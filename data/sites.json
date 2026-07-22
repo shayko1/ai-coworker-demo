@@ -1,12 +1,104 @@
 [
-  { "msid": "9d41-a2f7", "name": "Bella Bakery", "siteType": "TEMPLATE", "plan": "premium", "settings": { "locale": "en", "timezone": "America/New_York" } },
-  { "msid": "b7c2-0e19", "name": "Ortal Fitness", "siteType": "BLANK", "plan": "free", "settings": { "locale": "he", "timezone": "Asia/Jerusalem" } },
-  { "msid": "3f2a-77b1", "name": "Vintage Prints", "siteType": "TEMPLATE", "plan": "free" },
-  { "msid": "c910-4d55", "name": "Nomad Coffee", "siteType": "TEMPLATE", "plan": "premium", "settings": { "locale": "en", "timezone": "Europe/Berlin" } },
-  { "msid": "e83b-12aa", "name": "Studio Kite", "siteType": "BLANK", "plan": "premium", "settings": { "locale": "pt", "timezone": "America/Sao_Paulo" } },
-  { "msid": "51fd-9c03", "name": "Green Garden Co", "siteType": "TEMPLATE", "plan": "free", "settings": { "locale": "en", "timezone": "Europe/London" } },
-  { "msid": "aa04-6e72", "name": "Old Harbor Inn", "siteType": "TEMPLATE", "plan": "premium" },
-  { "msid": "7c68-31d9", "name": "Pixel Studio", "siteType": "BLANK", "plan": "free", "settings": { "locale": "es", "timezone": "Europe/Madrid" } },
-  { "msid": "d2e5-88f0", "name": "Marina Yoga", "siteType": "TEMPLATE", "plan": "free", "settings": { "locale": "en", "timezone": "Australia/Sydney" } },
-  { "msid": "f4a9-20c6", "name": "Baker Street Blog", "siteType": "BLANK", "plan": "free", "settings": { "locale": "fr", "timezone": "Europe/Paris" } }
+  {
+    "msid": "9d41-a2f7",
+    "name": "Bella Bakery",
+    "siteType": "TEMPLATE",
+    "plan": "premium",
+    "settings": {
+      "locale": "en",
+      "timezone": "America/New_York"
+    },
+    "siteSource": "TEMPLATE"
+  },
+  {
+    "msid": "b7c2-0e19",
+    "name": "Ortal Fitness",
+    "siteType": "BLANK",
+    "plan": "free",
+    "settings": {
+      "locale": "he",
+      "timezone": "Asia/Jerusalem"
+    },
+    "siteSource": "USER"
+  },
+  {
+    "msid": "3f2a-77b1",
+    "name": "Vintage Prints",
+    "siteType": "TEMPLATE",
+    "plan": "free",
+    "siteSource": "TEMPLATE"
+  },
+  {
+    "msid": "c910-4d55",
+    "name": "Nomad Coffee",
+    "siteType": "TEMPLATE",
+    "plan": "premium",
+    "settings": {
+      "locale": "en",
+      "timezone": "Europe/Berlin"
+    },
+    "siteSource": "IMPORT"
+  },
+  {
+    "msid": "e83b-12aa",
+    "name": "Studio Kite",
+    "siteType": "BLANK",
+    "plan": "premium",
+    "settings": {
+      "locale": "pt",
+      "timezone": "America/Sao_Paulo"
+    },
+    "siteSource": "USER"
+  },
+  {
+    "msid": "51fd-9c03",
+    "name": "Green Garden Co",
+    "siteType": "TEMPLATE",
+    "plan": "free",
+    "settings": {
+      "locale": "en",
+      "timezone": "Europe/London"
+    },
+    "siteSource": "TEMPLATE"
+  },
+  {
+    "msid": "aa04-6e72",
+    "name": "Old Harbor Inn",
+    "siteType": "TEMPLATE",
+    "plan": "premium",
+    "siteSource": "TEMPLATE"
+  },
+  {
+    "msid": "7c68-31d9",
+    "name": "Pixel Studio",
+    "siteType": "BLANK",
+    "plan": "free",
+    "settings": {
+      "locale": "es",
+      "timezone": "Europe/Madrid"
+    },
+    "siteSource": "USER"
+  },
+  {
+    "msid": "d2e5-88f0",
+    "name": "Marina Yoga",
+    "siteType": "TEMPLATE",
+    "plan": "free",
+    "settings": {
+      "locale": "en",
+      "timezone": "Australia/Sydney"
+    },
+    "siteSource": "IMPORT"
+  },
+  {
+    "msid": "f4a9-20c6",
+    "name": "Baker Street Blog",
+    "siteType": "BLANK",
+    "plan": "free",
+    "settings": {
+      "locale": "fr",
+      "timezone": "Europe/Paris"
+    },
+    "siteSource": "USER"
+  }
 ]

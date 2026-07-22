@@ -21,6 +21,7 @@ function getMetadata(msid) {
     msid: site.msid,
     name: site.name,
     siteType: site.siteType,
+    siteSource: site.siteSource,
     plan: site.plan,
     locale: site.settings.locale,
     timezone: site.settings.timezone,
