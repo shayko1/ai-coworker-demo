@@ -86,7 +86,28 @@ Point out: the semantic-overlap rule it applies comes from
 `.claude/skills/repo-review-rules/SKILL.md`. Open the file. A skill is a file. You can
 edit it, live, during the session.
 
-## Moment 3, 18:05: the investigation
+## Moment 3, 13:20: make the reviewer smarter
+
+The review in Moment 2 flagged the field overlap because a rule told it to.
+But look at `src/campaignService.js` on the PR branch: `listByState` is a
+copy of `listByStatus` with one word changed, and no rule covers that.
+
+Open `.claude/skills/repo-review-rules/SKILL.md` and add one rule under
+"Always check":
+
+```
+5. Near-duplicate functions: two functions that differ by one word are
+   one function with a parameter. Ask which one stays.
+```
+
+Now run the Moment 2 prompt again. The review cites your rule.
+
+Point out: nobody retrained a model. You wrote one sentence in a markdown
+file, and the reviewer got smarter for every teammate. That is what "the
+agent learns" means, and your first contribution to a team can look
+exactly like this.
+
+## Moment 4, 18:05: the investigation
 
 A support ticket says a campaign email went out twice. The evidence is in
 `logs/send-jobs.log`. Ask:

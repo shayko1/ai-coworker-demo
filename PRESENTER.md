@@ -26,7 +26,16 @@ find, what it found in rehearsal, and where to point the room.
 - Tip: add "Keep it short: the biggest finding first." to the prompt when
   presenting on stage.
 
-## Moment 3, 18:05: investigation
+## Moment 3, 13:20: make the reviewer smarter
+
+- The gap is planted: no rule covers near-duplicate functions, and PR #2 has
+  one (`listByState` copies `listByStatus`).
+- They add rule 5 to `.claude/skills/repo-review-rules/SKILL.md`, re-run the
+  Moment 2 prompt, and the review cites their rule.
+- Point the room at: the diff between the two runs. One sentence of markdown
+  changed the reviewer. No model was retrained.
+
+## Moment 4, 18:05: investigation
 
 - Should find: campaign c-778, job sj-4411 starts 16:58:02, gateway timeout
   16:58:12, second job sj-4412 starts 16:58:19, both deliver. Bucket: ours.
