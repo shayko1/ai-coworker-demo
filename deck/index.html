@@ -1162,7 +1162,7 @@ The review bot already commented. What did it miss?
 
   <!-- 9: Thursday, it burns you -->
   <div class="slide day-thu" data-slide="10"
-       data-notes="16:40, two hours after you felt like a senior, it gives you one wrong answer. Your team lead asks how many sites the morning bug affected. You pass it to the agent, and it answers in seconds with a precise number and full confidence. Then you notice: it never ran a query. It made the number up from context. Name the term out loud, they will hear it everywhere: a hallucination, a confident guess dressed as a fact. The model fills a gap with something plausible instead of saying it does not know. The defense is one sentence: show me the query, the test, the source. Sounds right. It isn't, and you almost put it in a Slack message to your team lead. The lesson every dev learns exactly once: it sounds identical when it's right and when it's wrong. A teammate says 'I think'; the agent rarely does. The rule of thumb: trust it where a mistake is cheap to spot, tests and repeated code fail loudly. Double-check where a wrong answer looks exactly like a right one, money, permissions, and user-data logic fail silently, and quoted numbers need their query shown. The fix is one sentence: 'show me the query / the test / the source.' It will, happily. AI makes writing code cheap. What goes live is still on you.">
+       data-notes="16:40, two hours after you felt like a senior, it gives you one wrong answer. Your team lead asks how many sites the morning bug affected. You pass it to the agent, and it answers in seconds with a precise number and full confidence. Then you notice: it never ran a query. It made the number up from context. Name the term out loud, they will hear it everywhere: a hallucination, a confident guess dressed as a fact. The model fills a gap with something plausible instead of saying it does not know. The defense is one sentence: show me the query, the test, the source. And explain the third card item with its examples: a data migration or a one-time production script runs once, for real, so there is no safe way to watch it work first. When you cannot run it and see the result with your own eyes, a wrong answer looks exactly like a right one, and that is when you slow down and double-check. Sounds right. It isn't, and you almost put it in a Slack message to your team lead. The lesson every dev learns exactly once: it sounds identical when it's right and when it's wrong. A teammate says 'I think'; the agent rarely does. The rule of thumb: trust it where a mistake is cheap to spot, tests and repeated code fail loudly. Double-check where a wrong answer looks exactly like a right one, money, permissions, and user-data logic fail silently, and quoted numbers need their query shown. The fix is one sentence: 'show me the query / the test / the source.' It will, happily. AI makes writing code cheap. What goes live is still on you.">
     <h3>16:40</h3>
     <h2>Then it gets <span class="em">one wrong</span></h2>
     <hr class="divider">
@@ -1181,7 +1181,7 @@ The review bot already commented. What did it miss?
         <ul>
           <li>Money, permissions, user data</li>
           <li>Numbers it quotes: "show me the query"</li>
-          <li>Anything you can't run yourself</li>
+          <li>Code you cannot run to see it work: migrations, one-time scripts</li>
         </ul>
       </div>
     </div>
